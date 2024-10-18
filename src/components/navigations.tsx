@@ -39,7 +39,7 @@ export const Navigation = () => {
   return (
     <ul className="flex flex-col">
       {routes.map((item) => {
-        const isActive = false;
+        const isActive = true;
         const Icon = isActive ? item.activeIcon : item.icon;
         return (
           <Link
