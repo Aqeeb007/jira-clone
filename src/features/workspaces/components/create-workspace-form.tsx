@@ -54,7 +54,7 @@ export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
       {
         onSuccess: ({ workspace }) => {
           form.reset();
-          router.push("/workspaces" + workspace.$id);
+          router.push("/workspaces/" + workspace.$id);
         },
       }
     );
@@ -131,16 +131,32 @@ export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
                           disabled={isPending}
                           onChange={handleImageChange}
                         />
-                        <Button
-                          type="button"
-                          disabled={isPending}
-                          variant={"tertiary"}
-                          size={"xm"}
-                          onClick={() => inputRef.current?.click()}
-                          className="w-fit mt-2"
-                        >
-                          Upload Image
-                        </Button>
+                        {field.value ? (
+                          <Button
+                            type="button"
+                            disabled={isPending}
+                            variant={"destructive"}
+                            size={"xm"}
+                            onClick={() => {
+                              field.onChange(null);
+                              if (inputRef.current) inputRef.current.value = "";
+                            }}
+                            className="w-fit mt-2"
+                          >
+                            Remove Image
+                          </Button>
+                        ) : (
+                          <Button
+                            type="button"
+                            disabled={isPending}
+                            variant={"tertiary"}
+                            size={"xm"}
+                            onClick={() => inputRef.current?.click()}
+                            className="w-fit mt-2"
+                          >
+                            Upload Image
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </div>
