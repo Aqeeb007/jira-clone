@@ -5,35 +5,32 @@ import { client } from "@/lib/rpc";
 import { toast } from "sonner";
 
 type ResponseType = InferResponseType<
-  (typeof client.api.workspaces)[":workspaceId"]["$delete"],
+  (typeof client.api.members)[":memberId"]["$patch"],
   200
 >;
 type RequestType = InferRequestType<
-  (typeof client.api.workspaces)[":workspaceId"]["$delete"]
+  (typeof client.api.members)[":memberId"]["$patch"]
 >;
 
-export const useDeleteWorkspace = () => {
+export const useUpdateMember = () => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation<ResponseType, Error, RequestType>({
-    mutationFn: async ({ param }) => {
-      const response = await client.api.workspaces[":workspaceId"]["$delete"]({
+    mutationFn: async ({ json, param }) => {
+      const response = await client.api.members[":memberId"]["$patch"]({
+        json,
         param,
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create workspace");
+        throw new Error("Failed to update member");
       }
 
       return await response.json();
     },
-    onSuccess: ({ workspace }) => {
-      toast.success("Workspace deleted");
+    onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["workspaces"],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [`workspace-${workspace.$id}`],
+        queryKey: ["members"],
       });
     },
     onError: (error) => {

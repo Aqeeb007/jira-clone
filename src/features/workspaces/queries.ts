@@ -64,3 +64,27 @@ export const getWorkspace = async ({ workspaceId }: GetWorkspaceParams) => {
     return null;
   }
 };
+
+type GetWorkspaceInfoParams = {
+  workspaceId: string;
+};
+
+export const getWorkspaceInfo = async ({
+  workspaceId,
+}: GetWorkspaceInfoParams) => {
+  try {
+    const { databases } = await createSessionClient();
+
+    const workspace = await databases.getDocument<Workspace>(
+      DATABASE_ID,
+      WORKSPACES_ID,
+      workspaceId
+    );
+
+    return {
+      name: workspace.name,
+    };
+  } catch {
+    return null;
+  }
+};

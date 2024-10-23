@@ -42,13 +42,11 @@ const routes = [
 export const Navigation = () => {
   const workspaceId = useWorkspaceId();
   const pathname = usePathname();
-  console.log(pathname);
   return (
     <ul className="flex flex-col">
       {routes.map((item) => {
         const href = `/workspaces/${workspaceId}${item.href}`;
         const isActive = pathname === href;
-        console.log(isActive);
         const Icon = isActive ? item.activeIcon : item.icon;
         return (
           <Link href={href} key={href} className="flex items-center gap-2 p-2">

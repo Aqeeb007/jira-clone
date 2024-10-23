@@ -12,6 +12,8 @@ import { createWorkspaceSchema, updateWorkspaceSchema } from "../schemas";
 import { MemberRole } from "@/features/members/type";
 import { generateInviteCode } from "@/lib/utils";
 import { getMembers } from "@/features/members/utils";
+import { z } from "zod";
+import { Workspace } from "../types";
 
 const app = new Hono()
   .get("/", sessionMiddleware, async (c) => {
@@ -163,10 +165,85 @@ const app = new Hono()
     }
 
     //TODO: delete members, projects and tasks
-    
+
     await databases.deleteDocument(DATABASE_ID, WORKSPACES_ID, workspaceId);
 
     return c.json({ workspace: { $id: workspaceId }, success: true }, 200);
-  });
+  })
+  .post("/:workspaceId/reset-invite-code", sessionMiddleware, async (c) => {
+    const databases = c.get("databases");
+    const user = c.get("user");
 
+    const { workspaceId } = c.req.param();
+
+    const member = await getMembers({
+      databases,
+      userId: user.$id,
+      workspaceId,
+    });
+
+    if (!member || member.role !== MemberRole.ADMIN) {
+      return c.json({ error: "Unauthorized", success: false }, 401);
+    }
+
+    const workspace = await databases.updateDocument(
+      DATABASE_ID,
+      WORKSPACES_ID,
+      workspaceId,
+      {
+        inviteCode: generateInviteCode(6),
+      }
+    );
+
+    return c.json({ workspace }, 200);
+  })
+  .post(
+    "/:workspaceId/join",
+    sessionMiddleware,
+    zValidator(
+      "json",
+      z.object({
+        inviteCode: z.string(),
+      })
+    ),
+    async (c) => {
+      const { workspaceId } = c.req.param();
+      const { inviteCode } = c.req.valid("json");
+
+      const databases = c.get("databases");
+      const user = c.get("user");
+
+      const member = await getMembers({
+        databases,
+        userId: user.$id,
+        workspaceId,
+      });
+
+      if (member) {
+        return c.json({ error: "Already joined", success: false }, 401);
+      }
+
+      const workspace = await databases.getDocument<Workspace>(
+        DATABASE_ID,
+        WORKSPACES_ID,
+        workspaceId
+      );
+
+      if (!workspace) {
+        return c.json({ error: "Workspace not found", success: false }, 404);
+      }
+
+      if (workspace.inviteCode !== inviteCode) {
+        return c.json({ error: "Invalid invite code", success: false }, 401);
+      }
+
+      await databases.createDocument(DATABASE_ID, MEMBERS_ID, ID.unique(), {
+        workspaceId,
+        userId: user.$id,
+        role: MemberRole.MEMBER,
+      });
+
+      return c.json({ workspace, success: true }, 200);
+    }
+  );
 export default app;
