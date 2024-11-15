@@ -9,12 +9,11 @@ import { usePathname } from "next/navigation";
 import { RiAddCircleFill } from "react-icons/ri";
 
 export const Projects = () => {
-  const projectId = null; //TODO: use project id hook
   const workspaceId = useWorkspaceId();
   const pathname = usePathname();
   const { open } = useCreateProjectModal();
 
-  const { data, isLoading } = useGetProjects({ workspaceId });
+  const { data } = useGetProjects({ workspaceId });
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -33,16 +32,16 @@ export const Projects = () => {
             <Link
               href={href}
               key={project.$id}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 w-full"
             >
               <div
                 className={cn(
                   "flex items-center gap-2.5 rounded-md transition hover:opacity-75 cursor-pointer",
                   isActive &&
-                    "bg-white shadow-sm hover:opacity-100 text-primary"
+                    "bg-white w-full shadow-sm hover:opacity-100 text-primary"
                 )}
               >
-                <ProjectAvatar name={project.name} />
+                <ProjectAvatar className="m-1" name={project.name} />
                 <span className="truncate">{project.name}</span>
               </div>
             </Link>

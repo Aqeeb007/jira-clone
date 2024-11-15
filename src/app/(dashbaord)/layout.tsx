@@ -3,6 +3,8 @@
 import { Navbar } from "@/components/navbar";
 import { Sidebar } from "@/components/sidebar";
 import { CreateProjectModal } from "@/features/projects/components/create-project-modal";
+import { CreateTaskModal } from "@/features/tasks/components/create-task-modal";
+import { UpdateTaskModal } from "@/features/tasks/components/update-task-modal";
 import { CreateWorkspaceModal } from "@/features/workspaces/components/create-workspace-modal";
 
 type Props = {
@@ -14,6 +16,9 @@ const DashboardLayout = ({ children }: Props) => {
     <div className="min-h-screen">
       <CreateWorkspaceModal />
       <CreateProjectModal />
+      <CreateTaskModal />
+      <UpdateTaskModal />
+      
 
       <div className="mx-auto max-w-screen-2xl">
         <div className="fixed left-0 top-0 hidden lg:block lg:w-[264px] h-full overflow-y-auto">

@@ -3,37 +3,41 @@ import { InferRequestType, InferResponseType } from "hono";
 
 import { client } from "@/lib/rpc";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 type ResponseType = InferResponseType<
-  (typeof client.api.workspaces)[":workspaceId"]["$delete"],
+  (typeof client.api.tasks)[":taskId"]["$patch"],
   200
 >;
 type RequestType = InferRequestType<
-  (typeof client.api.workspaces)[":workspaceId"]["$delete"]
+  (typeof client.api.tasks)[":taskId"]["$patch"]
 >;
 
-export const useDeleteWorkspace = () => {
+export const useUpdateTask = () => {
+  const router = useRouter();
   const queryClient = useQueryClient();
 
   const mutation = useMutation<ResponseType, Error, RequestType>({
-    mutationFn: async ({ param }) => {
-      const response = await client.api.workspaces[":workspaceId"]["$delete"]({
+    mutationFn: async ({ json, param }) => {
+      const response = await client.api.tasks[":taskId"]["$patch"]({
+        json,
         param,
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create workspace");
+        throw new Error("Failed to update task");
       }
 
       return await response.json();
     },
-    onSuccess: ({ workspace }) => {
-      toast.success("Workspace deleted");
+    onSuccess: ({ task }) => {
+      toast.success("Task updated");
+      router.refresh();
       queryClient.invalidateQueries({
-        queryKey: ["workspaces"],
+        queryKey: ["tasks"],
       });
       queryClient.invalidateQueries({
-        queryKey: [`workspace-${workspace.$id}`],
+        queryKey: [`task-${task.$id}`],
       });
     },
     onError: (error) => {

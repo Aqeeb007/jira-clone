@@ -11,8 +11,8 @@ export const createProjectSchema = z.object({
   workspaceId: z.string().min(1, { message: "Required" }),
 });
 
-export const updateWorkspaceSchema = z.object({
-  name: z.string().min(1, { message: "Minimum 1 character" }),
+export const updateProjectSchema = z.object({
+  name: z.string().min(1, { message: "Minimum 1 character" }).optional(),
   image: z
     .union([
       z.instanceof(File),
